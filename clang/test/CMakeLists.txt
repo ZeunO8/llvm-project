@@ -69,7 +69,6 @@ endif ()
 
 list(APPEND CLANG_TEST_DEPS
   apinotes-test
-  c-index-test
   clang
   clang-fuzzer-dictionary
   clang-resource-headers
@@ -89,6 +88,10 @@ list(APPEND CLANG_TEST_DEPS
   diagtool
   hmaptool
   )
+
+if(BUILD_C_INDEX_TEST)
+  list(APPEND CLANG_TEST_DEPS c-index-test)
+endif()
 
 if(CLANG_ENABLE_CIR)
   list(APPEND CLANG_TEST_DEPS

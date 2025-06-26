@@ -23,7 +23,10 @@ if(HAVE_CLANG_REPL_SUPPORT)
   add_clang_subdirectory(clang-repl)
 endif()
 
-add_clang_subdirectory(c-index-test)
+option(BUILD_C_INDEX_TEST "Whether to build c-index-test" ON)
+if(BUILD_C_INDEX_TEST)
+  add_clang_subdirectory(c-index-test)
+endif()
 
 add_clang_subdirectory(clang-refactor)
 # For MinGW/Cygwin we only enable shared library if LLVM_LINK_LLVM_DYLIB=ON.
