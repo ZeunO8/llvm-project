@@ -2313,10 +2313,17 @@ function(llvm_install_symlink project name dest)
   endif()
 
   set(output_dir "${${project}_TOOLS_INSTALL_DIR}")
-
-  install(SCRIPT ${INSTALL_SYMLINK}
-          CODE "install_symlink(\"${full_name}\" \"${full_dest}\" \"${output_dir}\" \"${LLVM_LINK_OR_COPY}\")"
-          COMPONENT ${component})
+  
+  if(WIN32)
+    install(PROGRAMS "${output_dir}/${full_name}"
+            DESTINATION "${output_dir}"
+            RENAME "${full_dest}"
+            COMPONENT ${component})
+  else()
+    install(SCRIPT ${INSTALL_SYMLINK}
+            CODE "install_symlink(\"${full_name}\" \"${full_dest}\" \"${output_dir}\" \"${LLVM_LINK_OR_COPY}\")"
+            COMPONENT ${component})
+  endif()
 
   if (NOT LLVM_ENABLE_IDE AND NOT ARG_ALWAYS_GENERATE)
     add_llvm_install_targets(install-${name}
