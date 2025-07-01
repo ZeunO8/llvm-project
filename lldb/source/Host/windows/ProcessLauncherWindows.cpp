@@ -73,6 +73,15 @@ ProcessLauncherWindows::LaunchProcess(const ProcessLaunchInfo &launch_info,
   HANDLE stdin_handle = GetStdioHandle(launch_info, STDIN_FILENO);
   HANDLE stdout_handle = GetStdioHandle(launch_info, STDOUT_FILENO);
   HANDLE stderr_handle = GetStdioHandle(launch_info, STDERR_FILENO);
+  HANDLE hStdInDup = nullptr, hStdOutDup = nullptr, hStdErrDup = nullptr;
+
+  if (stdin_handle)
+    DuplicateHandle(GetCurrentProcess(), stdin_handle, GetCurrentProcess(), &hStdInDup, 0, TRUE, DUPLICATE_SAME_ACCESS);
+  if (stdout_handle)
+    DuplicateHandle(GetCurrentProcess(), stdout_handle, GetCurrentProcess(), &hStdOutDup, 0, TRUE, DUPLICATE_SAME_ACCESS);
+  if (stderr_handle)
+    DuplicateHandle(GetCurrentProcess(), stderr_handle, GetCurrentProcess(), &hStdErrDup, 0, TRUE, DUPLICATE_SAME_ACCESS);
+
   auto close_handles = llvm::make_scope_exit([&] {
     if (stdin_handle)
       ::CloseHandle(stdin_handle);
@@ -80,24 +89,28 @@ ProcessLauncherWindows::LaunchProcess(const ProcessLaunchInfo &launch_info,
       ::CloseHandle(stdout_handle);
     if (stderr_handle)
       ::CloseHandle(stderr_handle);
+    if (hStdInDup)
+      ::CloseHandle(hStdInDup);
+    if (hStdOutDup)
+      ::CloseHandle(hStdOutDup);
+    if (hStdErrDup)
+      ::CloseHandle(hStdErrDup);
   });
 
   startupinfo.cb = sizeof(startupinfoex);
   startupinfo.dwFlags |= STARTF_USESTDHANDLES;
-  startupinfo.hStdError =
-      stderr_handle ? stderr_handle : ::GetStdHandle(STD_ERROR_HANDLE);
-  startupinfo.hStdInput =
-      stdin_handle ? stdin_handle : ::GetStdHandle(STD_INPUT_HANDLE);
-  startupinfo.hStdOutput =
-      stdout_handle ? stdout_handle : ::GetStdHandle(STD_OUTPUT_HANDLE);
+  startupinfo.hStdInput = hStdInDup ? hStdInDup : ::GetStdHandle(STD_INPUT_HANDLE);
+  startupinfo.hStdOutput = hStdOutDup ? hStdOutDup : ::GetStdHandle(STD_OUTPUT_HANDLE);
+  startupinfo.hStdError = hStdErrDup ? hStdErrDup : ::GetStdHandle(STD_ERROR_HANDLE);
 
   std::vector<HANDLE> inherited_handles;
-  if (startupinfo.hStdError)
-    inherited_handles.push_back(startupinfo.hStdError);
-  if (startupinfo.hStdInput)
-    inherited_handles.push_back(startupinfo.hStdInput);
-  if (startupinfo.hStdOutput)
-    inherited_handles.push_back(startupinfo.hStdOutput);
+  if (hStdInDup)
+    inherited_handles.push_back(hStdInDup);
+  if (hStdOutDup)
+    inherited_handles.push_back(hStdOutDup);
+  if (hStdErrDup)
+    inherited_handles.push_back(hStdErrDup);
+
 
   SIZE_T attributelist_size = 0;
   InitializeProcThreadAttributeList(/*lpAttributeList=*/nullptr,
