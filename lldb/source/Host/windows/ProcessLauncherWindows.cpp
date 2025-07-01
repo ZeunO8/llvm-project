@@ -183,7 +183,7 @@ ProcessLauncherWindows::LaunchProcess(const ProcessLaunchInfo &launch_info,
       wexecutable.c_str(), pwcommandLine, NULL, NULL,
       /*bInheritHandles=*/!inherited_handles.empty(), flags, env_block,
       wworkingDirectory.size() == 0 ? NULL : wworkingDirectory.c_str(),
-      reinterpret_cast<STARTUPINFO *>(&startupinfoex), &pi);
+      reinterpret_cast<LPSTARTUPINFOW>(&startupinfoex), &pi);
 
   if (!result) {
     // Call GetLastError before we make any other system calls.
