@@ -360,6 +360,9 @@ check_symbol_exists(__unw_add_dynamic_fde "${CMAKE_CURRENT_LIST_DIR}/unwind.h" H
 
 check_symbol_exists(_Unwind_Backtrace "unwind.h" HAVE__UNWIND_BACKTRACE)
 include(CheckFunctionExists)
+if(APPLE)
+  add_definitions(-D_DARWIN_C_SOURCE)
+endif()
 check_function_exists(getpagesize HAVE_GETPAGESIZE)
 check_function_exists(sysconf HAVE_SYSCONF)
 check_function_exists(getrusage HAVE_GETRUSAGE)
