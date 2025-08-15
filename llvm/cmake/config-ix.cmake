@@ -359,38 +359,36 @@ check_symbol_exists(__deregister_frame "${CMAKE_CURRENT_LIST_DIR}/unwind.h" HAVE
 check_symbol_exists(__unw_add_dynamic_fde "${CMAKE_CURRENT_LIST_DIR}/unwind.h" HAVE_UNW_ADD_DYNAMIC_FDE)
 
 check_symbol_exists(_Unwind_Backtrace "unwind.h" HAVE__UNWIND_BACKTRACE)
-include(CheckFunctionExists)
+
 if(APPLE)
   set(CMAKE_REQUIRED_DEFINITIONS "-D_DARWIN_C_SOURCE")
 endif()
-check_function_exists(getpagesize HAVE_GETPAGESIZE)
-check_function_exists(sysconf HAVE_SYSCONF)
-check_function_exists(getrusage HAVE_GETRUSAGE)
-check_function_exists(isatty HAVE_ISATTY)
-check_function_exists(futimens HAVE_FUTIMENS)
-check_function_exists(futimes HAVE_FUTIMES)
-check_function_exists(getauxval HAVE_GETAUXVAL)
+
+check_symbol_exists(getpagesize unistd.h HAVE_GETPAGESIZE)
+check_symbol_exists(sysconf unistd.h HAVE_SYSCONF)
+check_symbol_exists(getrusage sys/resource.h HAVE_GETRUSAGE)
+check_symbol_exists(isatty unistd.h HAVE_ISATTY)
+check_symbol_exists(futimens sys/stat.h HAVE_FUTIMENS)
+check_symbol_exists(futimes sys/time.h HAVE_FUTIMES)
+check_symbol_exists(getauxval sys/auxv.h HAVE_GETAUXVAL)
 # AddressSanitizer conflicts with lib/Support/Unix/Signals.inc
 # Avoid sigaltstack on Apple platforms, where backtrace() cannot handle it
 # (rdar://7089625) and _Unwind_Backtrace is unusable because it cannot unwind
 # past the signal handler after an assertion failure (rdar://29866587).
 if( NOT LLVM_USE_SANITIZER MATCHES ".*Address.*" AND NOT APPLE )
-  check_function_exists(sigaltstack HAVE_SIGALTSTACK)
+  check_symbol_exists(sigaltstack signal.h HAVE_SIGALTSTACK)
 endif()
-check_function_exists(mallctl HAVE_MALLCTL)
-check_function_exists(mallinfo HAVE_MALLINFO)
-check_function_exists(mallinfo2 HAVE_MALLINFO2)
-check_function_exists(malloc_zone_statistics .h
+check_symbol_exists(mallctl malloc_np.h HAVE_MALLCTL)
+check_symbol_exists(mallinfo malloc.h HAVE_MALLINFO)
+check_symbol_exists(mallinfo2 malloc.h HAVE_MALLINFO2)
+check_symbol_exists(malloc_zone_statistics malloc/malloc.h
                     HAVE_MALLOC_ZONE_STATISTICS)
-check_function_exists(posix_spawn HAVE_POSIX_SPAWN)
-check_function_exists(pread HAVE_PREAD)
-check_function_exists(sbrk HAVE_SBRK)
-check_function_exists(strerror_r HAVE_STRERROR_R)
-check_function_exists(strerror_s HAVE_DECL_STRERROR_S)
-check_function_exists(setenv HAVE_SETENV)
-if(APPLE)
-  unset(CMAKE_REQUIRED_DEFINITIONS)
-endif()
+check_symbol_exists(posix_spawn spawn.h HAVE_POSIX_SPAWN)
+check_symbol_exists(pread unistd.h HAVE_PREAD)
+check_symbol_exists(sbrk unistd.h HAVE_SBRK)
+check_symbol_exists(strerror_r string.h HAVE_STRERROR_R)
+check_symbol_exists(strerror_s string.h HAVE_DECL_STRERROR_S)
+check_symbol_exists(setenv stdlib.h HAVE_SETENV)
 if(WIN32)
   check_symbol_exists(_chsize_s io.h HAVE__CHSIZE_S)
 
