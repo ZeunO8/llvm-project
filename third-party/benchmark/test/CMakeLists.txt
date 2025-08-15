@@ -2,7 +2,9 @@
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-find_package(Threads REQUIRED)
+if (NOT APPLE)
+  find_package(Threads REQUIRED)
+endif()
 include(CheckCXXCompilerFlag)
 
 add_cxx_compiler_flag(-Wno-unused-variable)

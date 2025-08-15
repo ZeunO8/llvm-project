@@ -59,7 +59,9 @@ function(add_sycl_rt_library LIB_TARGET_NAME LIB_OBJ_NAME LIB_OUTPUT_NAME)
     endif()
   endif()
 
-  find_package(Threads REQUIRED)
+  if(NOT APPLE)
+    find_package(Threads REQUIRED)
+  endif()
 
   target_link_libraries(${LIB_TARGET_NAME}
     PRIVATE
