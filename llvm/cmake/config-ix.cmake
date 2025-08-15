@@ -359,13 +359,14 @@ check_symbol_exists(__deregister_frame "${CMAKE_CURRENT_LIST_DIR}/unwind.h" HAVE
 check_symbol_exists(__unw_add_dynamic_fde "${CMAKE_CURRENT_LIST_DIR}/unwind.h" HAVE_UNW_ADD_DYNAMIC_FDE)
 
 check_symbol_exists(_Unwind_Backtrace "unwind.h" HAVE__UNWIND_BACKTRACE)
-check_symbol_exists(getpagesize unistd.h HAVE_GETPAGESIZE)
-check_symbol_exists(sysconf unistd.h HAVE_SYSCONF)
-check_symbol_exists(getrusage sys/resource.h HAVE_GETRUSAGE)
-check_symbol_exists(isatty unistd.h HAVE_ISATTY)
-check_symbol_exists(futimens sys/stat.h HAVE_FUTIMENS)
-check_symbol_exists(futimes sys/time.h HAVE_FUTIMES)
-check_symbol_exists(getauxval sys/auxv.h HAVE_GETAUXVAL)
+include(CheckFunctionExists)
+check_function_exists(getpagesize HAVE_GETPAGESIZE)
+check_function_exists(sysconf HAVE_SYSCONF)
+check_function_exists(getrusage HAVE_GETRUSAGE)
+check_function_exists(isatty HAVE_ISATTY)
+check_function_exists(futimens HAVE_FUTIMENS)
+check_function_exists(futimes HAVE_FUTIMES)
+check_function_exists(getauxval HAVE_GETAUXVAL)
 # AddressSanitizer conflicts with lib/Support/Unix/Signals.inc
 # Avoid sigaltstack on Apple platforms, where backtrace() cannot handle it
 # (rdar://7089625) and _Unwind_Backtrace is unusable because it cannot unwind
