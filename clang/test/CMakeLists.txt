@@ -88,7 +88,7 @@ endif ()
 
 list(APPEND CLANG_TEST_DEPS
   apinotes-test
-  c-index-test
+  # c-index-test
   clang
   clang-fuzzer-dictionary
   clang-resource-headers
