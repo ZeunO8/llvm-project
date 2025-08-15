@@ -359,36 +359,53 @@ check_symbol_exists(__deregister_frame "${CMAKE_CURRENT_LIST_DIR}/unwind.h" HAVE
 check_symbol_exists(__unw_add_dynamic_fde "${CMAKE_CURRENT_LIST_DIR}/unwind.h" HAVE_UNW_ADD_DYNAMIC_FDE)
 
 check_symbol_exists(_Unwind_Backtrace "unwind.h" HAVE__UNWIND_BACKTRACE)
-
 if(APPLE)
-  set(CMAKE_REQUIRED_DEFINITIONS "-D_DARWIN_C_SOURCE")
+  # On macOS, provide fallback defines for legacy / unavailable checks
+  add_definitions(
+    -DHAVE_GETPAGESIZE
+    -DHAVE_SYSCONF
+    -DHAVE_GETRUSAGE
+    -DHAVE_ISATTY
+    -DHAVE_FUTIMENS
+    -DHAVE_FUTIMES
+    # getauxval does not exist on macOS
+    # -DHAVE_GETAUXVAL
+    # sigaltstack conflicts with AddressSanitizer and macOS signal handling
+    # -DHAVE_SIGALTSTACK
+    -DHAVE_MALLCTL
+    -DHAVE_MALLINFO
+    -DHAVE_MALLINFO2
+    -DHAVE_MALLOC_ZONE_STATISTICS
+    -DHAVE_POSIX_SPAWN
+    -DHAVE_PREAD
+    -DHAVE_SBRK
+    -DHAVE_STRERROR_R
+    -DHAVE_DECL_STRERROR_S
+    -DHAVE_SETENV
+  )
+else()
+  # Non-Apple platforms: do normal checks
+  check_symbol_exists(getpagesize unistd.h HAVE_GETPAGESIZE)
+  check_symbol_exists(sysconf unistd.h HAVE_SYSCONF)
+  check_symbol_exists(getrusage sys/resource.h HAVE_GETRUSAGE)
+  check_symbol_exists(isatty unistd.h HAVE_ISATTY)
+  check_symbol_exists(futimens sys/stat.h HAVE_FUTIMENS)
+  check_symbol_exists(futimes sys/time.h HAVE_FUTIMES)
+  check_symbol_exists(getauxval sys/auxv.h HAVE_GETAUXVAL)
+  if( NOT LLVM_USE_SANITIZER MATCHES ".*Address.*" AND NOT APPLE )
+    check_symbol_exists(sigaltstack signal.h HAVE_SIGALTSTACK)
+  endif()
+  check_symbol_exists(mallctl malloc_np.h HAVE_MALLCTL)
+  check_symbol_exists(mallinfo malloc.h HAVE_MALLINFO)
+  check_symbol_exists(mallinfo2 malloc.h HAVE_MALLINFO2)
+  check_symbol_exists(malloc_zone_statistics malloc/malloc.h HAVE_MALLOC_ZONE_STATISTICS)
+  check_symbol_exists(posix_spawn spawn.h HAVE_POSIX_SPAWN)
+  check_symbol_exists(pread unistd.h HAVE_PREAD)
+  check_symbol_exists(sbrk unistd.h HAVE_SBRK)
+  check_symbol_exists(strerror_r string.h HAVE_STRERROR_R)
+  check_symbol_exists(strerror_s string.h HAVE_DECL_STRERROR_S)
+  check_symbol_exists(setenv stdlib.h HAVE_SETENV)
 endif()
-
-check_symbol_exists(getpagesize unistd.h HAVE_GETPAGESIZE)
-check_symbol_exists(sysconf unistd.h HAVE_SYSCONF)
-check_symbol_exists(getrusage sys/resource.h HAVE_GETRUSAGE)
-check_symbol_exists(isatty unistd.h HAVE_ISATTY)
-check_symbol_exists(futimens sys/stat.h HAVE_FUTIMENS)
-check_symbol_exists(futimes sys/time.h HAVE_FUTIMES)
-check_symbol_exists(getauxval sys/auxv.h HAVE_GETAUXVAL)
-# AddressSanitizer conflicts with lib/Support/Unix/Signals.inc
-# Avoid sigaltstack on Apple platforms, where backtrace() cannot handle it
-# (rdar://7089625) and _Unwind_Backtrace is unusable because it cannot unwind
-# past the signal handler after an assertion failure (rdar://29866587).
-if( NOT LLVM_USE_SANITIZER MATCHES ".*Address.*" AND NOT APPLE )
-  check_symbol_exists(sigaltstack signal.h HAVE_SIGALTSTACK)
-endif()
-check_symbol_exists(mallctl malloc_np.h HAVE_MALLCTL)
-check_symbol_exists(mallinfo malloc.h HAVE_MALLINFO)
-check_symbol_exists(mallinfo2 malloc.h HAVE_MALLINFO2)
-check_symbol_exists(malloc_zone_statistics malloc/malloc.h
-                    HAVE_MALLOC_ZONE_STATISTICS)
-check_symbol_exists(posix_spawn spawn.h HAVE_POSIX_SPAWN)
-check_symbol_exists(pread unistd.h HAVE_PREAD)
-check_symbol_exists(sbrk unistd.h HAVE_SBRK)
-check_symbol_exists(strerror_r string.h HAVE_STRERROR_R)
-check_symbol_exists(strerror_s string.h HAVE_DECL_STRERROR_S)
-check_symbol_exists(setenv stdlib.h HAVE_SETENV)
 if(WIN32)
   check_symbol_exists(_chsize_s io.h HAVE__CHSIZE_S)
 
