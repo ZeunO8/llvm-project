@@ -16,6 +16,8 @@ if(NOT LLVM_NO_INSTALL_NAME_DIR_FOR_BUILD_TREE)
   set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 endif()
 
+option(LLVM_ADD_TESTS "Whether to actuall add the tests subdrectorty" ON)
+
 include(${LLVM_COMMON_CMAKE_UTILS}/Modules/LLVMVersion.cmake)
 
 set_directory_properties(PROPERTIES LLVM_VERSION_MAJOR "${LLVM_VERSION_MAJOR}")
@@ -1397,7 +1399,9 @@ if( LLVM_INCLUDE_TESTS )
       ALWAYS_CLEAN)
   endif()
   add_subdirectory(utils/lit)
-  add_subdirectory(test)
+  if(LLVM_ENABLE_TESTS)
+    add_subdirectory(test)
+  endif()
   add_subdirectory(unittests)
 
   if (WIN32)
