@@ -14,7 +14,9 @@ if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     "${CMAKE_SOURCE_DIR}/../../cmake/modules"
     )
 
-  include(LLDBStandalone)
+  if (LLDB_BUILT_STANDALONE)
+    include(LLDBStandalone)
+  endif()
   include(debugserverConfig)
   include(AddLLDB)
 
