@@ -1,5 +1,7 @@
 add_subdirectory(argdumper)
-add_subdirectory(driver)
+if (LLDB_BUILT_STANDALONE)
+  add_subdirectory(driver)
+endif()
 add_subdirectory(intel-features)
 
 # We want lldb-test to be built only when it's needed,
@@ -9,7 +11,9 @@ add_subdirectory(lldb-test EXCLUDE_FROM_ALL)
 add_subdirectory(lldb-fuzzer EXCLUDE_FROM_ALL)
 
 add_lldb_tool_subdirectory(lldb-instr)
-add_lldb_tool_subdirectory(lldb-dap)
+if (LLDB_BUILD_LLDBDAP)
+  add_lldb_tool_subdirectory(lldb-dap)
+endif()
 if (LLDB_BUILD_LLDBRPC)
   add_lldb_tool_subdirectory(lldb-rpc-gen)
 endif()

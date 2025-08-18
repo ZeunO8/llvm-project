@@ -358,4 +358,6 @@ else()
   endif()
 endif()
 
+set(LLDB_BUILD_LLDBDAP OFF)
+
 include(LLDBGenerateConfig)
