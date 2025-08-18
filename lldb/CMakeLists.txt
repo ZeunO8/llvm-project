@@ -132,6 +132,9 @@ add_subdirectory(docs)
 
 check_lldb_plugin_layering()
 
+set(LLDB_ENABLE_PYTHON FALSE)
+set(LLDB_ENABLE_LUA FALSE)
+
 if (LLDB_ENABLE_PYTHON)
   if(LLDB_BUILD_FRAMEWORK)
     set(lldb_python_target_dir "${LLDB_FRAMEWORK_ABSOLUTE_BUILD_DIR}/LLDB.framework/Resources/Python/lldb")
